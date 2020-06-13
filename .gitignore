@@ -2,3 +2,5 @@ temp/
 vendor/
 app/
 composer.lock
+.*
+!.gitignore

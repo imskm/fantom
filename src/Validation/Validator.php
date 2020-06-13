@@ -160,7 +160,11 @@ class Validator
 			}
 
 			// Storing the validated value to the validatedFields property
-			$this->validatedFields[$this->validateField] = trim($this->validateValue);
+			if (is_string($this->validateValue)) {
+				$this->validatedFields[$this->validateField] = trim($this->validateValue);
+			} else {
+				$this->validatedFields[$this->validateField] = $this->validateValue;
+			}
 
 			// Resetting the $rules property
 			$this->rules = array();
