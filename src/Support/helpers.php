@@ -199,6 +199,35 @@ if (! function_exists( "disverse_files" ))
     }
 }
 
+/**
+ * Returns next page number using get_page function which
+ * uses $_GET to find the value of 'page' parameter and do
+ * not exceeds $max.
+ *
+ * @return int
+ */
+if (! function_exists( "get_page_next" ))
+{
+	function get_page_next($max = 100)
+    {
+        return (($page = get_page()) < $max) ? $page + 1 : $max;
+    }
+}
+
+/**
+ * Returns previous page number using get_page function which
+ * uses $_GET to find the value of 'page' parameter and do
+ * not go below $min.
+ *
+ * @return int
+ */
+if (! function_exists( "get_page_prev" ))
+{
+	function get_page_prev($min = 1)
+    {
+        return (($page = get_page()) > $min) ? $page - 1 : $min;
+    }
+}
 
 /**
  * --------------------------------------------------------
