@@ -14,9 +14,11 @@ trait RulesTrait
 		"alpha_dash"		=> true,
 		"alpha_num"			=> true,
 		"alpha_space"		=> true,
+		"alpha_num_space"	=> true,
 		"confirmed"			=> true,
 		"date"				=> true,
 		"date_equals"		=> true,
+		"depends"			=> true,
 		"digits"			=> true,
 		"email"				=> true,
 		"exist"				=> true,
@@ -32,6 +34,7 @@ trait RulesTrait
 		"required_file"		=> true,
 		"size"				=> true,
 		"unique"			=> true,
+		"unique_xself"		=> true,
 	];
 
 	/**
@@ -60,11 +63,17 @@ trait RulesTrait
 		'jpeg'	=> 'image/jpeg',
 		'png'	=> 'image/png',
 		'gif'	=> 'image/gif',
+		'svg'	=> 'image/svg+xml',
+		'bmp'	=> 'image/bmp',
+		'webp'	=> 'image/webp',
 		'image' => [
 			'jpg' 	=> 'image/jpeg',
 			'jpeg'	=> 'image/jpeg',
 			'png'	=> 'image/png',
 			'gif'	=> 'image/gif',
+			'svg'	=> 'image/svg+xml',
+			'bmp'	=> 'image/bmp',
+			'webp'	=> 'image/webp',
 		],
 		'pdf'	=> 'application/pdf',
 		'mp4'	=> 'video/mp4',
@@ -112,6 +121,18 @@ trait RulesTrait
 		
 		if(!preg_match($pattern, $data)) {
 			$this->setError($field, __FUNCTION__, "$field should contain alphabets and numbers only.");
+			return false;
+		}
+
+		return true;
+	}
+
+	protected function alpha_num_space($field, $data)
+	{
+		$pattern = "/^[a-zA-Z0-9 ]+$/";
+		
+		if(!preg_match($pattern, $data)) {
+			$this->setError($field, __FUNCTION__, "$field should contain alphabets, numbers and spaces only.");
 			return false;
 		}
 
@@ -184,6 +205,38 @@ trait RulesTrait
 		if ($interval->s !== 0) {
 			$this->setError($field, __FUNCTION__, "$data does not match.");
 			return false;
+		}
+
+		return true;
+	}
+
+	/**
+	 * Depends checks for any field validated before field under validation
+	 * has passed or not. In other word validation passes for this rule when
+	 * the field(s), which field under validation depends on, passed validation.
+	 * Usage:
+	 * 	['first_name' => 'required', 'some_field' => 'depends:first_name']
+	 *        depends validation only passes when first_name validation test
+	 *        passed before.
+	 * Note: When field in depends argument is not tested before field under
+	 *       validation then depends rule will default to true.
+	 */
+	protected function depends($field, $data, $args)
+	{
+		$args = explode(",", $args);
+
+		// Remove all the fields which are not validated yet.
+		$args = array_filter($args, function($element) {
+			return array_key_exists($element, $this->validatedFields);
+		});
+
+		// If fields in $args has failed the validation test before then
+		// set the error and return false
+		foreach ($args as $arg) {
+			if (array_key_exists($arg, $this->errors)) {
+				$this->setError($field, __FUNCTION__, "$arg is required to be valid.");
+				return false;
+			}
 		}
 
 		return true;
@@ -363,6 +416,35 @@ trait RulesTrait
 		return true;
 	}
 
+	/**
+	 * Checks field value under validation is unique this check excludes
+	 * a particular record in database.
+	 * Useful when we try to update uniuqe field in database but want to
+	 * exclude this check from a particular record.
+	 *
+	 * Usage: nique_xself:table,column," . $value
+	 *        record having $value under column column and table table will
+	 *        be exclued from unique checking.
+	 */
+    protected function unique_xself($field, $data, $args)
+    {
+        // $args[0] => Table, $args[1] => column, $args[2] => id
+        $parts = explode(",", $args);
+        if (count($parts) !== 3) {
+            throw new \Exception("Invalid argument to ".__FUNCTION__." rule.");
+        }
+
+        $sql = sprintf("SELECT 1 FROM %s WHERE id != :id AND %s = :%s", $parts[0], $parts[1], $parts[1]);
+        if($this->dbQuickCheck($sql, [
+            "id" => (int) $parts[2],
+            "$parts[1]" => $data
+        ])) {
+            $this->setError($field, __FUNCTION__, "$field $data is not unique.");
+            return false;
+        }
+
+        return true;
+    }
 
 	/**
 	 * Helper method for quick check existence of data in db
