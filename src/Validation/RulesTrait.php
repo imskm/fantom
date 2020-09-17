@@ -20,6 +20,7 @@ trait RulesTrait
 		"digits"			=> true,
 		"email"				=> true,
 		"exist"				=> true,
+		"file"				=> true,
 		"in"				=> true,
 		"integer"			=> true,
 		"max"				=> true,
@@ -28,6 +29,7 @@ trait RulesTrait
 		"optional"			=> true,
 		"phone"				=> true,
 		"required"			=> true,
+		"required_file"		=> true,
 		"size"				=> true,
 		"unique"			=> true,
 	];
@@ -43,6 +45,30 @@ trait RulesTrait
 	 * Numeric rules
 	 */
 	protected $numeric_rules = ['numeric', 'integer'];
+
+	/**
+	 * Error message stored by file validation helper methods
+	 * for file upload.
+	 */
+	protected $file_upload_error_msg = "";
+
+	/**
+	 * Allowed mime types
+	 */
+	protected $allowed_mimes = [
+		'jpg' 	=> 'image/jpeg',
+		'jpeg'	=> 'image/jpeg',
+		'png'	=> 'image/png',
+		'gif'	=> 'image/gif',
+		'image' => [
+			'jpg' 	=> 'image/jpeg',
+			'jpeg'	=> 'image/jpeg',
+			'png'	=> 'image/png',
+			'gif'	=> 'image/gif',
+		],
+		'pdf'	=> 'application/pdf',
+		'mp4'	=> 'video/mp4',
+	];
 
 
 	protected function isRuleAllowed($rule)
@@ -378,4 +404,150 @@ trait RulesTrait
 
 		return strlen($data);
 	}
+
+	/**
+	 * Checks if given file name $field exists in $_FILES array
+	 * 
+	 * @return bool  true if $field exists in $_FILES array otherwise false
+	 */
+	protected function required_file($field, $data)
+    {
+        // Check if $_FILE array is empty
+        if (count($_FILES) === 0) {
+            $this->setError($field, __FUNCTION__, "$field can not be empty");
+            return false;
+        }
+        
+        foreach ($_FILES[$field] as $file) {
+            if (count($file) == 0) {
+                $this->setError($field, __FUNCTION__, "All field of $field are required");
+                return false;
+            }
+        }
+        
+        return true;
+    }
+
+    protected function file($field, $data, $args)
+    {
+    	// $args[0] -> file type, $args[1] -> size
+        $args = explode(",", $args);
+        $ret = true;
+        
+        $files = diverse_files($_FILES[$field]);
+        foreach ($files as $file) {
+            // 1. Check the file is submitted
+            //    or Check for $_FILES Corruption Attack | Multiple Files
+            if ($ret) {
+                $ret = $this->fileCheckUndefined($file);
+            }
+            
+            // 2. Check file has submitted properly
+            if ($ret) {
+                $ret = $this->fileCheckError($file);
+            }
+            
+            // 3. Check the file size
+            if ($ret) {
+                $ret = $this->fileCheckSize($file, (int) $args[1]);
+            }
+
+            // 4. Check type of the file
+            if ($ret) {
+                $ret = $this->fileCheckType($file, $args[0]);
+            }
+
+            // 5. If validation failes set the error and return false
+            if (!$ret) {
+                $this->setError($field, __FUNCTION__, $this->file_upload_error_msg);
+                return false;
+            }
+        }
+
+        // 5. Every check passed so return true
+        return true;
+    }
+
+    private function fileCheckUndefined($file)
+    {
+        // Check Undefined | $_FILES Corruption Attack | Multiple Files
+        if (!isset($file['error']) || is_array($file['error'])) {
+            $this->file_upload_error_msg = "Product image is required";
+            return false;
+        }
+
+        return true;
+    }
+
+    private function fileCheckError($file)
+    {
+        $ret = true;
+
+        // Check Error code
+        switch ($file['error']) {
+            case UPLOAD_ERR_OK:
+                break;
+            
+            case UPLOAD_ERR_NO_FILE:
+                $this->file_upload_error_msg = 'No file sent';
+                $ret = false;
+                break;
+
+            case UPLOAD_ERR_INI_SIZE:
+            case UPLOAD_ERR_FORM_SIZE:
+                $this->file_upload_error_msg = 'Exceeded filesize limit';
+                $ret = false;
+                break;
+
+            default:
+                $this->file_upload_error_msg = 'Unknown errors';
+                $ret = false;
+                break;
+        }
+
+        return $ret;
+    }
+
+    private function fileCheckSize($file, $size)
+    {
+        if ($file['size'] > $size) {
+            $this->file_upload_error_msg = "Exceeded max filesize limit";
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
+     * Check file type
+     */
+    private function fileCheckType($file, $type)
+    {
+    	// Check mime type given in argument is allowed in
+    	// allowed mimes list.
+    	if (!in_array($type, $this->allowed_mimes)) {
+    		throw new \Exception("Unknown mime type '$type' given in argument");
+    	}
+
+    	$user_mime = $this->allowed_mimes[$type];
+        $finfo = new \finfo(FILEINFO_MIME_TYPE);
+        $mime = $finfo->file($file['tmp_name']);
+
+        $ret = true;
+        if (is_array($user_mime)) {
+	        if (($ext = array_search($mime, $user_mime, true)) === false) {
+	            $ret = false;
+	        }
+        } else if ($user_mime !== $mime) {
+        	$ret = false;
+        }
+
+        if (!$ret) {
+        	$this->file_upload_error_msg = 'Invalid file uploaded, allowed '. $type;
+        }
+
+        return $ret;
+    }
+
+
 }
