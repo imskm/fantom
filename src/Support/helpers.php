@@ -177,6 +177,28 @@ if (! function_exists( "uri_referer" ))
 	}
 }
 
+/**
+ * Function for restructing $_FILES array and returning
+ * easy to use data struct for my image upload library.
+ *
+ * @return array
+ */
+if (! function_exists( "disverse_files" ))
+{
+	function disverse_files(array $files)
+    {   
+        $result = array();
+
+        foreach($files as $key1 => $value1) {
+            foreach($value1 as $key2 => $value2) {
+                $result[$key2][$key1] = $value2;
+            }   
+        }   
+
+        return $result; 
+    }
+}
+
 
 /**
  * --------------------------------------------------------
