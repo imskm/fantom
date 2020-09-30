@@ -422,21 +422,24 @@ trait RulesTrait
 	 * Useful when we try to update uniuqe field in database but want to
 	 * exclude this check from a particular record.
 	 *
-	 * Usage: nique_xself:table,column," . $value
+	 * Usage: nique_xself:table,column,ignore_column," . $value
 	 *        record having $value under column column and table table will
 	 *        be exclued from unique checking.
 	 */
     protected function unique_xself($field, $data, $args)
     {
-        // $args[0] => Table, $args[1] => column, $args[2] => id
+        // $args[0] => Table, $args[1] => column, $args[2] => ignore_column, $args[3] => id
         $parts = explode(",", $args);
-        if (count($parts) !== 3) {
+        if (count($parts) !== 4) {
             throw new \Exception("Invalid argument to ".__FUNCTION__." rule.");
         }
 
-        $sql = sprintf("SELECT 1 FROM %s WHERE id != :id AND %s = :%s", $parts[0], $parts[1], $parts[1]);
+        $sql = sprintf(
+			"SELECT 1 FROM %s WHERE %s != :%s AND %s = :%s",
+			$parts[0], $parts[2], $parts[2], $parts[1], $parts[1]
+		);
         if($this->dbQuickCheck($sql, [
-            "id" => (int) $parts[2],
+            "$parts[2]" => $parts[3],
             "$parts[1]" => $data
         ])) {
             $this->setError($field, __FUNCTION__, "$field $data is not unique.");
