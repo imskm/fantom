@@ -230,6 +230,34 @@ if (! function_exists( "get_page_prev" ))
 }
 
 /**
+ * Returns value of $key key in POST super global variable if present
+ * otherwise empty string.
+ *
+ * @return string
+ */
+if (! function_exists( "post_or_empty" ))
+{
+	function post_or_empty($key)
+    {
+		return isset($_POST[$key])? $_POST[$key] : '';
+    }
+}
+
+/**
+ * Returns value of $key key in GET super global variable if present
+ * otherwise empty string.
+ *
+ * @return string
+ */
+if (! function_exists( "get_or_empty" ))
+{
+	function get_or_empty($key)
+    {
+		return isset($_GET[$key])? $_GET[$key] : '';
+    }
+}
+
+/**
  * --------------------------------------------------------
  *  Remember last post data
  * --------------------------------------------------------
