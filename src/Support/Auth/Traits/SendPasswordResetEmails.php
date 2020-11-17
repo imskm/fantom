@@ -14,7 +14,7 @@ use Fantom\Support\Auth\AccountRecoveryValidator;
  */
 trait SendPasswordResetEmails
 {
-	private $redirec_to = $this->redirect_to;
+	private $redirec_to = "/auth/login";
 	
 	/**
 	 * Index action for showing forgot password form to enter email address.
