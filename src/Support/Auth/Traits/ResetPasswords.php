@@ -7,13 +7,11 @@ use Fantom\Support\Auth\AccountRecoveryValidator;
 
 /**
  * ResetPasswordController trait
- * This trait will be used by Controller which handles PasswordReset action 
+ * This trait will be used by Controller which handles Reset Password action
  *
  */
 trait ResetPasswords
 {
-	private $redirect_to = "/auth/login";
-
 	protected function index()
 	{
 		// Verify token
@@ -30,11 +28,14 @@ trait ResetPasswords
 
 		$token 			= $_POST['token'];
 		$new_password 	= $_POST['new_password'];
-		$user 			= (new PasswordReset())->getUserByToken($token);
+		$user 			= $this->getPasswordResetModel()->getUserByToken($token);
 		$user->changePassword($new_password);
 
-		Session::flash("success", "Your password for account {$user->email} has been changed.");
-		redirect($this->redirect_to);
+		Session::flash(
+			"success",
+			"Your password for account {$user->email} has been changed."
+		);
+		redirect($this->redirectTo());
 	}
 
 	private function isTokenValid()
@@ -42,7 +43,7 @@ trait ResetPasswords
 		$v = new AccountRecoveryValidator();
 		$v->validatePasswordResetToken();
 		if ($v->hasError()) {
-			redirect($this->redirect_to);
+			redirect($this->redirectTo());
 		}
 	}
 
@@ -51,7 +52,7 @@ trait ResetPasswords
 		$v = new AccountRecoveryValidator();
 		$v->validateResetPassword();
 		if ($v->hasError()) {
-			redirect($this->redirect_to);
+			redirect($this->redirectTo());
 		}
 	}
 }

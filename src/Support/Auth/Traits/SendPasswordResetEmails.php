@@ -14,8 +14,6 @@ use Fantom\Support\Auth\AccountRecoveryValidator;
  */
 trait SendPasswordResetEmails
 {
-	private $redirect_to = "/auth/login";
-	
 	/**
 	 * Index action for showing forgot password form to enter email address.
 	 *
@@ -30,9 +28,9 @@ trait SendPasswordResetEmails
 		$this->validateEmail();
 		$email = strtolower(trim($_POST['email']));
 		
-		if (is_null($user = User::verify('email', $email))) {
+		if (is_null($user = $this->getUserModel()->verify('email', $email))) {
 			Session::flash("error", "User with email {$emai} not found");
-			redirect($this->redirect_to);
+			redirect($this->redirectTo());
 		}
 
 		if ($user->sendPasswordResetEmail() === false) {
@@ -53,7 +51,7 @@ trait SendPasswordResetEmails
 		$v = new AccountRecoveryValidator();
 		$v->validateForgotPassword();
 		if ($v->hasError()) {
-			redirect($this->redirect_to);
+			redirect($this->redirectTo());
 		}
 	}
 }
