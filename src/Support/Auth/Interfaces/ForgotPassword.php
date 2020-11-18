@@ -13,11 +13,11 @@ interface ForgotPassword
 	 * Returns new User Model instance
 	 *
 	 */
-	public function getUserModel();
+	private function getUserModel();
 
 	/**
 	 * Returns URL where client will be redirected to when after successfully
 	 * processing the forgot password request.
 	 */
-	public function redirectTo();
+	private function redirectTo();
 }

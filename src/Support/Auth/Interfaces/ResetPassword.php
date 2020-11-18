@@ -13,11 +13,11 @@ interface ResetPassword
 	 * Returns new PasswordReset Model instance
 	 *
 	 */
-	public function getPasswordResetModel();
+	private function getPasswordResetModel();
 
 	/**
 	 * Returns URL where client will be redirected to when after successfully
 	 * resetting the password.
 	 */
-	public function redirectTo();
+	private function redirectTo();
 }
