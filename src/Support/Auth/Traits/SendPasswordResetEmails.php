@@ -29,10 +29,11 @@ trait SendPasswordResetEmails
 		$email = strtolower(trim($_POST['email']));
 		
 		if (is_null($user = $this->getUserModel()->verify('email', $email))) {
-			Session::flash("error", "User with email {$emai} not found");
+			Session::flash("error", "User with email {$email} not found");
 			redirect($this->redirectTo());
 		}
 
+		$user->usePasswordReset($this->getPasswordResetModel());
 		if ($user->sendPasswordResetEmail() === false) {
 			Session::flash("error", $user->getLastError());
 			redirect("auth/forgot-password?email={$user->email}");

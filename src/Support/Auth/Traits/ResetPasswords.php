@@ -17,7 +17,7 @@ trait ResetPasswords
 		// Verify token
 		$this->isTokenValid();
 
-		$this->view->render("Auth/ResetPasswords/index.php", [
+		$this->view->render("Auth/ResetPassword/index.php", [
 			"token" => $_GET['token']
 		]);
 	}
@@ -28,7 +28,8 @@ trait ResetPasswords
 
 		$token 			= $_POST['token'];
 		$new_password 	= $_POST['new_password'];
-		$user 			= $this->getPasswordResetModel()->getUserByToken($token);
+		$user 			= $this->getPasswordResetModel()
+							->getUserByToken($token, $this->getUserModel());
 		$user->changePassword($new_password);
 
 		Session::flash(

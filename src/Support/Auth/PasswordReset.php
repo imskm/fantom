@@ -32,7 +32,7 @@ class PasswordReset extends Model
 		return self::$password_reset_token_column;
 	}
 
-	public function getUserByToken($token)
+	public function getUserByToken($token, User $user)
 	{
 		$password_reset = static::where(
 			self::$password_reset_token_column,
@@ -41,7 +41,7 @@ class PasswordReset extends Model
 
 
 		return !is_null($password_reset)?
-			User::find($password_reset->user_id) : null;
+			$user->find($password_reset->user_id)->first() : null;
 	}
 
 	public function destroyToken()
