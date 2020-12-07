@@ -166,7 +166,7 @@ class View
 	{
 		// If stack element count is more than 1 that means
 		// more than one section is nested
-		if (count($this->section_stack) >= 1) {
+		if (count($this->section_stack) > 1) {
 			$this->handleException(
 				new \Exception("A Section is already in rendering progress. Nesting of section is not allowed.")
 			);
