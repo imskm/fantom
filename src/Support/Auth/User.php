@@ -49,6 +49,7 @@ abstract class User extends Model implements PasswordResetLinkEmailable
 		// 3. Send password reset email
 		return $this->sendPasswordResetLinkByEmail([
 			'user' => $this,
+			'password_reset' => $this->password_reset,
 		]);
 	}
 
