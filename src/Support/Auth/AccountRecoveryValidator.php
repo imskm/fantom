@@ -32,7 +32,7 @@ class AccountRecoveryValidator extends Validator
 	public function validateResetPassword()
 	{
 		$table_column = "{$this->password_reset_table},{$this->password_reset_token_column}";
-		$this->validate("GET", [
+		$this->validate("POST", [
 			"token" 				=> "required|min:16|max:256|exist:" . $table_column,
 			"new_password" 			=> "required|min:{$this->password_min_length}|max:{$this->password_max_length}",
 			"confirm_new_password" 	=> "required|confirmed:new_password",
