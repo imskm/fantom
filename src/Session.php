@@ -21,6 +21,11 @@ class Session
 			throw new \Exception("Invalid flash key given");
 		}
 
+		// Initialise the $_SESSION flash_msg_key if not set
+		if (array_key_exists(self::$flash_msg_key, $_SESSION) === false) {
+			$_SESSION[self::$flash_msg_key] = [];
+		}
+
 		// If message given then request is for setting a flash message
 		if ($message) {
 			$_SESSION[self::$flash_msg_key][$key] = $message;
