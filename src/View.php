@@ -206,20 +206,18 @@ class View
 
 	/**
 	 * Fetches rendered section and injects it where this
-	 * method is used.
+	 * method is used if section exists otherwise echos empty string.
+	 * Echoing empty string is useful because it base template do not
+	 * need to do anything extra when some derived templates do not
+	 * use section.
 	 *
 	 * @var string $section  Name of the section to be fetched
 	 * @return string
 	 */
 	public function fetchSection($section)
 	{
-		if (! array_key_exists($section, $this->rendered)) {
-			$this->handleException(
-				new \Exception("Section \"{$sectino}\" does not exist.")
-			);
-		}
-
-		echo $this->rendered[$section];
+		echo array_key_exists($section, $this->rendered)?
+			$this->rendered[$section] : "";
 	}
 
 	/**
