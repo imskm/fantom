@@ -258,6 +258,44 @@ if (! function_exists( "get_or_empty" ))
 }
 
 /**
+ * Takes associative array (key value pairs) and converts it into url
+ * encoded string that can be used as GET parameter string.
+ * Then returns the given array by appending it with current URI.
+ * Useful when adding page param in pagination, in filter etc.
+ *
+ * @return string  Only returns the query part
+ */
+if (! function_exists( "get_query_append" ))
+{
+	function get_query_append(array $query)
+	{
+		$server_query_string = "";
+		if (isset($_SERVER["QUERY_STRING"])) {
+			$server_query_string = $_SERVER["QUERY_STRING"];
+		}
+		$get = $_GET;
+
+		// Removing route part from the query string
+		// i.e. $_GET contains post/2/show
+		//      post/2/show will be removed
+		if ($server_query_string) {
+			array_shift($get);
+		}
+
+		// Merging the two array, $get and user $query
+		$query = array_merge($get, $query);
+
+		$query = http_build_query($query);
+		if ($query) {
+			$query = preg_replace("/%5B[0-9]+%5D/simU", "%5B%5D", $query);
+		}
+
+		return $query;
+	}
+}
+
+
+/**
  * --------------------------------------------------------
  *  Remember last post data
  * --------------------------------------------------------
