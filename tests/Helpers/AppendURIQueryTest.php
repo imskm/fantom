@@ -48,4 +48,33 @@ final class AppendURIQueryTest extends TestCase
 		$this->assertNotEmpty($res = ($this->function)($append_query));
 		$this->assertSame($expected, $res);
 	}
+
+	public function test_return_correct_query_string_when_empty_array_given_with_few_get_params_present()
+	{
+		$_SERVER["QUERY_STRING"] = "post/2/show&q=keyword&name=ibtesham";
+		$_GET = [
+			"post/2/show" => "",
+			"q" => "keyword",
+			"name" => "ibtesham",
+		];
+		$append_query = [
+		];
+		$expected = "q=keyword&name=ibtesham";
+
+		$this->assertNotEmpty($res = ($this->function)($append_query));
+		$this->assertSame($expected, $res);
+	}
+
+	public function test_return_correct_query_string_when_empty_array_and_get_url_params_given()
+	{
+		$_SERVER["QUERY_STRING"] = "post/2/show&q=keyword&name=ibtesham";
+		$_GET = [
+			"post/2/show" => "",
+		];
+		$append_query = [
+		];
+		$expected = "";
+
+		$this->assertEmpty($res = ($this->function)($append_query));
+	}
 }
