@@ -99,7 +99,7 @@ class Logger implements LoggerInterface
 		if (ftell($fh) >= $max_bytes) {
 			fclose($fh);
 			// Rename the old file and create new one
-			if (rename($storage_path, "$storage_path_".time()) === false) {
+			if (rename($storage_path, "{$storage_path}_".time()) === false) {
 				// Don't know what to do when renaming fails
 			}
 			$fh = $this->openLogFile($storage_path);
