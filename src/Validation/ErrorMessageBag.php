@@ -133,7 +133,7 @@ class ErrorMessageBag implements Countable
 		return $this->error($key);
 	}
 
-	public function count()
+	public function count(): int
 	{
 		return count($this->errors);
 	}
