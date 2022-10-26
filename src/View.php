@@ -2,6 +2,7 @@
 
 namespace Fantom;
 
+use Exception;
 use Fantom\Validation\Validator;
 
 /**
@@ -212,7 +213,7 @@ class View
 	 * use section.
 	 *
 	 * @var string $section  Name of the section to be fetched
-	 * @return string
+	 * @return void
 	 */
 	public function fetchSection($section)
 	{
