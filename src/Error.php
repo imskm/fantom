@@ -79,6 +79,12 @@ class Error
 	 */
 	protected static function outputOrLogError($exception)
 	{
+		// Code is 404 (not found) or 500 (general error)
+		$code = $exception->getCode();
+		if ($code != 404) {
+			$code = 500;
+		}
+
  		if(\App\Config::SHOW_ERRORS)
 		{
 			echo "<h1>Fatal Error</h1>";
