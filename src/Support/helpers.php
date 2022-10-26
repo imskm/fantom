@@ -183,9 +183,9 @@ if (! function_exists( "uri_referer" ))
  *
  * @return array
  */
-if (! function_exists( "disverse_files" ))
+if (! function_exists( "diverse_files" ))
 {
-	function disverse_files(array $files)
+	function diverse_files(array $files)
     {   
         $result = array();
 
