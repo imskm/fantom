@@ -68,7 +68,7 @@ abstract class Controller
 	/**
 	 * Before filter - called before an action method.
 	 *
-	 * @return void
+	 * @return bool
 	 */
 	protected function before()
 	{
@@ -87,7 +87,6 @@ abstract class Controller
 	 */
 	public function middleware($guard, $next = null)
 	{
-		die(var_dump($next()));
 		$this->middleware = new Middleware;
 		$this->middleware->guard($guard)->process();
 	}
