@@ -22,7 +22,7 @@ class Token
 	 * Sets token with a name (as key value pair)
 	 * @var string  Name of the token
 	 * @var string  Token
-	 * @return bool
+	 * @return void
 	 */
 	public static function set($token_name, $token)
 	{
