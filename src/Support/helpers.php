@@ -393,7 +393,7 @@ if (! function_exists('forget_post'))
 if (! function_exists( "e" ))
 {
 	function e($data) {
-		return htmlspecialchars($data, ENT_QUOTES, 'UTF-8');
+		return $data ? htmlspecialchars($data, ENT_QUOTES, 'UTF-8') : "";
 	}
 }
 
