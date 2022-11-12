@@ -390,10 +390,15 @@ if (! function_exists('forget_post'))
  *
  * Handles all security functions
  */
-if (! function_exists( "e" ))
+if (! function_exists("e"))
 {
-	function e($data) {
-		return $data ? htmlspecialchars($data, ENT_QUOTES, 'UTF-8') : "";
+	function e($data)
+	{
+		if (is_string($data)) {
+			return htmlspecialchars($data, ENT_QUOTES, 'UTF-8');
+		}
+
+		return $data;
 	}
 }
 
