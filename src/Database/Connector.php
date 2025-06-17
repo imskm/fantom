@@ -42,7 +42,7 @@ class Connector
 
 	private static function getConnectionString()
 	{
-		$format = "mysql:host=%s;port=%s;dbname=%s;charset=utf8";
+		$format = "mysql:host=%s;port=%s;dbname=%s;charset=utf8mb4";
 
 		return sprintf($format, Config::DB_HOST, Config::DB_PORT, Config::DB_NAME);
 	}
