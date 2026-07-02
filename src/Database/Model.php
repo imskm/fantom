@@ -147,6 +147,9 @@ abstract class Model extends Query
 			$this->performUpdate();
 		} else if ($this->performInsert()) {
 			$this->last_insert_id = Conn::getConnection()->lastInsertId();
+			if ($this->last_insert_id) {
+				$this->setPrimaryKeyValue($this->last_insert_id);
+			}
 		}
 
 		return ! $this->error;
@@ -442,5 +445,10 @@ abstract class Model extends Query
 		// Else drop to default and check if default key for primary key exist
 		// in $this
 		return isset($this->{$this->primary_key});
+	}
+
+	private function setPrimaryKeyValue(int $id): void
+	{
+		$this->data[$this->getPrimaryKey()] = $id;
 	}
 }

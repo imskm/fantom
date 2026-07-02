@@ -47,7 +47,7 @@ final class ModelTest extends TestCase
 
 	public function testFindMethodCanFindExistingRecord()
 	{
-		$this->assertInstanceOf(User::class, User::find(2));
+		$this->assertInstanceOf(User::class, User::find(1)->first());
 	}
 
 	public function testFindMethodReturnsNullWhenRecordNotFound()
@@ -57,7 +57,7 @@ final class ModelTest extends TestCase
 
 	public function testWhereMethodRetunsInstanceOfUserModelWhenRecordFound()
 	{
-		$this->assertInstanceOf(User::class, User::where('id', 2));
+		$this->assertInstanceOf(User::class, User::where('id', 1));
 	}
 
 	public function testWhereMethodRetunsInstanceOfUserModelWhenRecordNotFound()
@@ -95,7 +95,7 @@ final class ModelTest extends TestCase
 	{
 		$this->assertInstanceOf(
 			User::class,
-			User::where('id', 2)->orWhere('id', 3)
+			User::where('id', 1)->orWhere('id', 3)
 		);
 	}
 
@@ -134,7 +134,7 @@ final class ModelTest extends TestCase
 	{
 		$this->assertCount(
 			1,
-			User::where('id', 8)->andWhere('email', 'ibtesham@gmail.com')->get()
+			User::where('id', 2)->andWhere('email', 'testuser@test.com')->get()
 		);
 	}
 
@@ -149,7 +149,7 @@ final class ModelTest extends TestCase
 	{
 		$this->assertInstanceOf(
 			User::class,
-			User::where('password', '12345678')->first()
+			User::where('first_name', 'Test')->first()
 		);
 	}
 
@@ -162,7 +162,7 @@ final class ModelTest extends TestCase
 	{
 		$this->assertInstanceOf(
 			User::class,
-			User::where('password', '12345678')->last()
+			User::where('first_name', 'Test')->last()
 		);
 	}
 
@@ -177,7 +177,8 @@ final class ModelTest extends TestCase
 	public function testSaveMethodCanCreateNewRecord()
 	{
 		$user = new User();
-		$user->name 		= 'PHPUnit';
+		$user->first_name 	= 'PHPUnit';
+		$user->last_name 	= 'Test Suit';
 		$user->email 		= 'phpunit@test.com';
 		$user->password 	= '12345678';
 
@@ -193,34 +194,68 @@ final class ModelTest extends TestCase
 
 	public function testSaveMethodCanUpdateRecord()
 	{
-		$user = User::find(2)->first();
-		$user->name 		= 'Updated';
+		$user = new User();
+		$user->first_name 	= 'PHPUnit';
+		$user->last_name 	= 'Test Suit';
+		$user->email 		= 'phpunit2@test.com';
+		$user->password 	= '12345678';
+
+		$user->save();
+
+		$user = User::find($user->lastId())->first();
+		$user->first_name 		= 'Updated';
 
 		$this->assertTrue($user->save());
 	}
 
 	public function testSaveMethodCanUpdateRecordAfterWhereReturns()
 	{
+		$user = new User();
+		$user->first_name 	= 'Sadaf';
+		$user->last_name 	= 'Anjum';
+		$user->email 		= 'sadaf@gmail.com';
+		$user->password 	= '12345678';
+
+		$user->save();
+
 		$user = User::where('email', 'sadaf@gmail.com')->first();
-		$user->name 		= 'Sadaf Anjum';
+		$user->first_name 		= 'Sadaf Anjum';
 
 		$this->assertTrue($user->save());
 	}
 
 	public function testSaveMethodCanUpdateRecordAfterWhereOrWhereReturns()
 	{
-		$user = User::where('email', 'sadaf@gmail.com')
-			->orWhere('id', 2)->first();
-		$user->name 		= 'Sadaf Anjum WhereOrWhere';
+		$user = new User();
+		$user->first_name 	= 'Sadaf';
+		$user->last_name 	= 'Anjum';
+		$user->email 		= 'sadaf2@gmail.com';
+		$user->password 	= '12345678';
+
+		$user->save();
+
+		$user = User::where('email', 'sadaf2@gmail.com')
+			->orWhere('id', $user->lastId())
+			->first();
+		$user->first_name 		= 'Sadaf Anjum WhereOrWhere';
 
 		$this->assertTrue($user->save());
 	}
 
 	public function testSaveMethodCanUpdateRecordAfterWhereAndWhereReturns()
 	{
+		$user = new User();
+		$user->first_name 	= 'Md Wasim';
+		$user->last_name 	= 'Akhtar Ansari';
+		$user->email 		= 'wasim@gmail.com';
+		$user->password 	= '12345678';
+
+		$user->save();
+
 		$user = User::where('email', 'wasim@gmail.com')
-			->andWhere('id', 6)->first();
-		$user->name 		= 'Wasim WhereAndWhere';
+			->andWhere('id', $user->lastId())
+			->first();
+		$user->first_name 		= 'Wasim WhereAndWhere';
 
 		$this->assertTrue($user->save());
 	}
@@ -229,7 +264,7 @@ final class ModelTest extends TestCase
 	{
 		$users = User::all()->get();
 		foreach ($users as $user) {
-			$user->name = 'Updated';
+			$user->first_name = 'Updated';
 
 			$this->assertTrue($user->save());
 			$user = null;
@@ -243,11 +278,26 @@ final class ModelTest extends TestCase
 		];
 		$users = User::all()->get();
 		foreach ($users as $i => $user) {
-			$user->name = $names[$i];
+			if ($i > count($names) - 1) {
+				break;
+			}
+
+			$user->first_name = $names[$i];
 
 			$this->assertTrue($user->save());
 			$user = null;
 		}
 	}
 
+	public function testPrimaryKeyModelPropertyExistsAfterSave()
+	{
+		$user = new User();
+		$user->first_name 	= 'Primary Key';
+		$user->last_name 	= 'Test Suit';
+		$user->email 		= 'primarykey@test.com';
+		$user->password 	= '12345678';
+
+		$this->assertTrue($user->save());
+		$this->assertNotNull($user->id);
+	}
 }
